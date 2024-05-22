@@ -23,11 +23,16 @@ fi
 
 # if Ubuntu, install lapack
 if [ "$DISTRO" == "Ubuntu" ]; then
-    sudo apt-get update -y && sudo apt-get install -y wget gnupg lsb-release curl liblapack-dev git gcc g++
+    sudo apt-get update -y && sudo apt-get install -y wget gnupg curl liblapack-dev git gcc g++
     if [ "$use_brew" == "false" ]; then
        wget -qO- https://aide-qc.github.io/deploy/aide_qc/debian/PUBLIC-KEY.gpg | sudo apt-key add -
        if [ ! -e "/etc/apt/sources.list.d/aide-qc.list" ]; then
-          wget -qO- "https://aide-qc.github.io/deploy/aide_qc/debian/$(lsb_release -cs)/aide-qc.list" | sudo tee -a /etc/apt/sources.list.d/aide-qc.list
+          source /etc/os-release
+          if [ $VERSION_CODENAME != "bionic" ]; then
+             # Workaround for Ubuntu >=20.04: if any other versions than bionic is used, use the latest (focal)
+             VERSION_CODENAME="focal"
+          fi
+          wget -qO- "https://aide-qc.github.io/deploy/aide_qc/debian/$VERSION_CODENAME/aide-qc.list" | sudo tee -a /etc/apt/sources.list.d/aide-qc.list
        fi
        sudo apt-get update
        sudo apt-get install -y qcor
